@@ -4,12 +4,13 @@
 
 ## 프로젝트 개요
 
-SOCAM은 정부지원 IT 교육과정을 소개하고 리뷰를 관리하는 웹 플랫폼입니다. 
+SOCAM은 정부지원 IT 교육과정을 소개하고 리뷰를 관리하는 웹 플랫폼입니다.
 교육기관은 강의를 등록하고, 학생들은 강의를 탐색하며 리뷰를 작성할 수 있습니다.
 
 ## 기술 스택
 
 ### Frontend
+
 - **Framework**: Next.js 16.0.3 (App Router)
 - **Language**: TypeScript 5
 - **UI Library**: React 19.2.0
@@ -19,13 +20,14 @@ SOCAM은 정부지원 IT 교육과정을 소개하고 리뷰를 관리하는 웹
 - **Form**: React Hook Form + Zod
 
 ### Backend (향후 구현)
+
 - **Database**: PostgreSQL / MySQL (예정)
 - **ORM**: Prisma / Drizzle (예정)
 - **Authentication**: NextAuth.js (예정)
 
 ## 프로젝트 구조
 
-\`\`\`
+```
 socam/
 ├── app/                          # Next.js App Router 페이지
 │   ├── page.tsx                  # 메인 페이지 (히어로, 카테고리 네비, 광고 배너)
@@ -62,18 +64,21 @@ socam/
 │   ├── use-mobile.ts             # 모바일 감지
 │   └── use-toast.ts              # Toast 알림
 └── public/                       # 정적 파일 (이미지 등)
-\`\`\`
+```
 
 ## 주요 기능
 
 ### 메인 페이지 구성
+
 1. **메인 헤더**
+
    - 로고 (SOCAM)
    - 네비게이션: 강의 / 교육기관 / 공지사항
    - 검색 버튼
    - 로그인 / 회원가입 버튼
 
 2. **카테고리 네비게이션 (2번째 헤더, Sticky)**
+
    - 전체
    - 프론트엔드
    - 백엔드
@@ -86,6 +91,7 @@ socam/
    - 기획/마케팅
 
 3. **광고 배너 캐러셀**
+
    - 5개 배너 (목업 데이터)
    - 8초마다 자동 전환
    - 좌우 화살표 버튼
@@ -97,26 +103,32 @@ socam/
 ### 강의 상세 페이지 구성
 
 #### 좌측 메인 콘텐츠 영역 (6개 탭)
+
 1. **강의 소개**
+
    - 강의 설명 (classDetail)
    - 강의 특징
    - 수강 대상
 
 2. **NCS 정보**
+
    - NCS 코드
    - 훈련 핵심 과목
    - 능력 단위
 
 3. **지원 정보**
+
    - 지원 자격 (나이, 학력, 경력)
    - 내일배움카드 필요 여부
    - 지원 절차 (서류 → 코딩테스트 → 면접 → 합격)
 
 4. **커리큘럼**
+
    - 주차별 커리큘럼 (아코디언)
    - 상세 학습 내용
 
 5. **수강 후기**
+
    - 후기 목록 (평점, 내용, 작성자)
    - 후기 작성 폼 (로그인 시)
 
@@ -126,23 +138,28 @@ socam/
    - 수상 이력
 
 #### 우측 고정 사이드바
+
 1. **수강료 정보**
+
    - 정가
    - 훈련 지원금
    - 실 부담금
 
 2. **훈련 일정**
+
    - 훈련 기간
    - 훈련 시간
    - 훈련 장소
    - 온/오프라인 여부
 
 3. **지원 자격**
+
    - 내일배움카드 필수 여부
    - 나이 제한
    - 학력 제한
 
 4. **채용 연계**
+
    - 인재 추천 여부
    - 인턴 전형 여부
    - 취업률
@@ -153,6 +170,7 @@ socam/
 ### 역할별 기능
 
 #### 비회원 (Guest)
+
 - 강의 목록 조회
 - 강의 상세 조회
 - 교육기관 목록 조회
@@ -160,6 +178,7 @@ socam/
 - 로그인 / 회원가입
 
 #### 학생 (User)
+
 - 비회원 기능 전체
 - 강의 찜하기
 - 리뷰 작성 (승인 후 게시)
@@ -170,6 +189,7 @@ socam/
   - 회원 탈퇴
 
 #### 교육기관 (Org)
+
 - 강의 등록 요청
 - 강의 수정/삭제 요청
 - 강의 승인 현황 조회
@@ -177,6 +197,7 @@ socam/
 - 기관 정보 관리
 
 #### 관리자 (Admin)
+
 - 전체 통계 대시보드
 - 기관 가입 승인/거절
 - 강의 등록 승인/거절
@@ -187,6 +208,7 @@ socam/
 ## 페이지 목록
 
 ### 공통 페이지
+
 - `/` - 메인 페이지
 - `/lectures` - 강의 목록
 - `/lectures/[id]` - 강의 상세 (6개 탭, 사이드바, 추천 강의)
@@ -194,18 +216,22 @@ socam/
 - `/notices` - 공지사항 목록
 
 ### 인증 페이지
+
 - `/login` - 로그인
 - `/signup` - 회원가입 선택
 - `/signup/student` - 학생 회원가입
 - `/signup/org` - 기관 회원가입
 
 ### 학생 페이지
+
 - `/mypage` - 학생 마이페이지 (내 정보, 리뷰, 찜, 탈퇴)
 
 ### 기관 페이지
+
 - `/org` - 기관 마이페이지 (기관 정보, 강의 관리, 리뷰 조회)
 
 ### 관리자 페이지
+
 - `/admin` - 관리자 대시보드
 - `/admin/orgs` - 기관 승인 관리
 - `/admin/lectures` - 강의 승인 관리
@@ -216,49 +242,50 @@ socam/
 ## 설치 및 실행
 
 ### 사전 요구사항
+
 - Node.js 18 이상
 - **pnpm** (권장) - 빠르고 효율적인 패키지 매니저
 
 ### pnpm 설치 (처음 사용하는 경우)
 
-\`\`\`bash
+```bash
 npm install -g pnpm
-\`\`\`
+```
 
 ### 설치
 
-\`\`\`bash
+```bash
 # 저장소 클론
 git clone [repository-url]
 cd socam
 
 # 의존성 설치 (pnpm 권장)
 pnpm install
-\`\`\`
+```
 
 ### 개발 서버 실행
 
-\`\`\`bash
+```bash
 pnpm dev
-\`\`\`
+```
 
 브라우저에서 [http://localhost:3000](http://localhost:3000) 접속
 
 ### 빌드
 
-\`\`\`bash
+```bash
 pnpm build
-\`\`\`
+```
 
 ### 프로덕션 실행
 
-\`\`\`bash
+```bash
 pnpm start
-\`\`\`
+```
 
 ### 기타 명령어
 
-\`\`\`bash
+```bash
 # 린트 실행
 pnpm lint
 
@@ -267,7 +294,7 @@ pnpm type-check
 
 # 의존성 업데이트
 pnpm update
-\`\`\`
+```
 
 > **Note**: npm이나 yarn을 사용할 수도 있지만, pnpm이 더 빠르고 디스크 공간을 효율적으로 사용하므로 팀 협업 시 pnpm 사용을 권장합니다.
 
@@ -275,7 +302,7 @@ pnpm update
 
 `.env.local` 파일을 생성하고 다음 환경 변수를 설정하세요:
 
-\`\`\`env
+```env
 # Database (예정)
 DATABASE_URL="postgresql://..."
 
@@ -285,11 +312,12 @@ NEXTAUTH_SECRET="your-secret-key"
 
 # File Upload (예정)
 NEXT_PUBLIC_UPLOAD_URL="..."
-\`\`\`
+```
 
 ## 데이터베이스 스키마 (확장 예정)
 
 ### 기존 테이블
+
 - `user` - 학생 정보
 - `org` - 교육기관 정보
 - `admin` - 관리자 정보
@@ -301,10 +329,11 @@ NEXT_PUBLIC_UPLOAD_URL="..."
 ### 강의 테이블 확장 필드 (예정)
 
 #### 강의 상세 정보
-\`\`\`sql
+
+```sql
 -- 기본 정보 (기존)
-id, title, org_id, teacher, category, target, method, 
-start_date, end_date, class_detail, organization, 
+id, title, org_id, teacher, category, target, method,
+start_date, end_date, class_detail, organization,
 rating, review_count, thumbnail, status, created_at
 
 -- 추가 필드 (확장 예정)
@@ -351,11 +380,11 @@ curriculum JSONB,                    -- 커리큘럼 (JSON)
 instructor_bio TEXT,                 -- 강사 소개
 instructor_career TEXT[],            -- 강사 경력
 instructor_awards TEXT[]             -- 강사 수상 이력
-\`\`\`
+```
 
 ### 리뷰 테이블 구조
 
-\`\`\`sql
+```sql
 CREATE TABLE reviews (
   id SERIAL PRIMARY KEY,
   lecture_id INTEGER REFERENCES lectures(id),
@@ -368,29 +397,32 @@ CREATE TABLE reviews (
   status VARCHAR(20) DEFAULT 'pending',
   created_at TIMESTAMP DEFAULT NOW()
 );
-\`\`\`
+```
 
 ## 코드 스타일 및 컨벤션
 
 ### 주석 규칙
+
 모든 컴포넌트와 섹션에는 **한글 주석**을 사용합니다:
 
-\`\`\`tsx
+```tsx
 // ========== 섹션 제목 ==========
 // 기능 설명
 
 export default function Component() {
   // ...
 }
-\`\`\`
+```
 
 ### 파일 네이밍
+
 - 컴포넌트: `kebab-case.tsx` (예: `best-lectures.tsx`)
 - 페이지: `page.tsx` (Next.js App Router 규칙)
 - 유틸리티: `kebab-case.ts` (예: `use-mobile.ts`)
 
 ### 컴포넌트 구조
-\`\`\`tsx
+
+```tsx
 // ========== 컴포넌트명 ==========
 'use client' // 클라이언트 컴포넌트인 경우
 
@@ -403,30 +435,32 @@ interface Props {
 
 export default function ComponentName({ props }: Props) {
   // 상태 관리
-  
+
   // 이벤트 핸들러
-  
+
   // 렌더링
   return (
     <div>
       {/* ========== 섹션 1 ========== */}
-      
+
       {/* ========== 섹션 2 ========== */}
     </div>
   )
 }
-\`\`\`
+```
 
 ## 협업 가이드
 
 ### Git 브랜치 전략
+
 - `main` - 프로덕션 배포 브랜치
 - `develop` - 개발 브랜치
 - `feature/기능명` - 기능 개발 브랜치
 - `fix/버그명` - 버그 수정 브랜치
 
 ### 커밋 메시지 규칙
-\`\`\`
+
+```
 feat: 새로운 기능 추가
 fix: 버그 수정
 docs: 문서 수정
@@ -434,9 +468,10 @@ style: 코드 포맷팅 (기능 변경 없음)
 refactor: 코드 리팩토링
 test: 테스트 코드
 chore: 빌드 설정, 패키지 매니저 등
-\`\`\`
+```
 
 ### 코드 리뷰 체크리스트
+
 - [ ] 한글 주석이 모든 섹션에 달려있는가?
 - [ ] 컴포넌트가 적절히 분리되어 있는가?
 - [ ] 타입스크립트 에러가 없는가?
@@ -446,16 +481,18 @@ chore: 빌드 설정, 패키지 매니저 등
 ## 디자인 가이드
 
 ### 색상 팔레트 (5가지 제한)
-\`\`\`
+
+```
 Primary Blue: #1A73E8
 Accent Cyan: #00C4CC
 Text Dark: #1A1A1A
 Text Grey: #666666
 Background White: #FFFFFF
 Border Light: #E5E5E5
-\`\`\`
+```
 
 ### 타이포그래피
+
 - 메인 제목: `text-4xl font-bold` 또는 `text-5xl font-bold`
 - 섹션 제목: `text-3xl font-bold`
 - 서브 제목: `text-xl font-semibold`
@@ -463,11 +500,13 @@ Border Light: #E5E5E5
 - 작은 텍스트: `text-sm text-muted-foreground`
 
 ### 간격 (Spacing)
+
 - 섹션 간격: `py-16` 또는 `py-20`
 - 컨테이너: `max-w-7xl mx-auto px-4`
 - 카드 간격: `gap-6` 또는 `gap-8`
 
 ### 레이아웃 우선순위
+
 1. Flexbox (대부분의 레이아웃)
 2. CSS Grid (복잡한 2D 레이아웃만)
 3. Absolute/Float (최후의 수단)
@@ -475,6 +514,7 @@ Border Light: #E5E5E5
 ## 목업 데이터 정리
 
 ### 광고 배너 (5개)
+
 1. React Full-Stack 개발 부트캠프
 2. AI & 머신러닝 실전 과정
 3. AWS 클라우드 아키텍트 양성
@@ -482,25 +522,30 @@ Border Light: #E5E5E5
 5. UX/UI 디자인 & Figma
 
 ### 베스트 강의 (16개)
+
 카테고리별 분산: 프론트엔드, 백엔드, AI/데이터, 클라우드, 모바일, 보안, DevOps, 기획/마케팅
 
 ### 신규 강의 (21개)
+
 최신 기술 스택 포함: Next.js, TypeScript, Python, Docker, Kubernetes, Flutter 등
 
 ## 향후 계획
 
 ### Phase 1: 백엔드 구축 (현재)
+
 - [ ] 데이터베이스 설계 및 구현
 - [ ] API 엔드포인트 구현
 - [ ] 인증/인가 시스템 구축
 
 ### Phase 2: 핵심 기능
+
 - [ ] 강의 CRUD 완성
 - [ ] 리뷰 시스템 완성
 - [ ] 승인 워크플로우 구현
 - [ ] 파일 업로드 구현
 
 ### Phase 3: 강의 상세 페이지 확장
+
 - [ ] 백엔드 필드 추가 (location, NCS, tuition 등)
 - [ ] 커리큘럼 CRUD
 - [ ] 후기 작성/관리 기능
@@ -508,12 +553,14 @@ Border Light: #E5E5E5
 - [ ] 유사 강의 추천 알고리즘
 
 ### Phase 4: 추가 기능
+
 - [ ] 검색 기능 고도화
 - [ ] 알림 시스템
 - [ ] 이메일 발송 (승인/거절 등)
 - [ ] 통계 및 분석 대시보드
 
 ### Phase 5: 최적화
+
 - [ ] 성능 최적화
 - [ ] SEO 개선
 - [ ] 테스트 코드 작성
