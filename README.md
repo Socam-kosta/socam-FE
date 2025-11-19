@@ -217,7 +217,13 @@ socam/
 
 ### 사전 요구사항
 - Node.js 18 이상
-- pnpm (권장) 또는 npm
+- **pnpm** (권장) - 빠르고 효율적인 패키지 매니저
+
+### pnpm 설치 (처음 사용하는 경우)
+
+\`\`\`bash
+npm install -g pnpm
+\`\`\`
 
 ### 설치
 
@@ -226,18 +232,14 @@ socam/
 git clone [repository-url]
 cd socam
 
-# 의존성 설치
+# 의존성 설치 (pnpm 권장)
 pnpm install
-# 또는
-npm install
 \`\`\`
 
 ### 개발 서버 실행
 
 \`\`\`bash
 pnpm dev
-# 또는
-npm run dev
 \`\`\`
 
 브라우저에서 [http://localhost:3000](http://localhost:3000) 접속
@@ -246,17 +248,28 @@ npm run dev
 
 \`\`\`bash
 pnpm build
-# 또는
-npm run build
 \`\`\`
 
 ### 프로덕션 실행
 
 \`\`\`bash
 pnpm start
-# 또는
-npm start
 \`\`\`
+
+### 기타 명령어
+
+\`\`\`bash
+# 린트 실행
+pnpm lint
+
+# 타입 체크
+pnpm type-check
+
+# 의존성 업데이트
+pnpm update
+\`\`\`
+
+> **Note**: npm이나 yarn을 사용할 수도 있지만, pnpm이 더 빠르고 디스크 공간을 효율적으로 사용하므로 팀 협업 시 pnpm 사용을 권장합니다.
 
 ## 환경 변수 (예정)
 
