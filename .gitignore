@@ -8,27 +8,36 @@
 
 # testing
 /coverage
+*.lcov
 
 # next.js
 /.next/
 /out/
+/.swc/
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
 *.pem
+*.log
+*.lock
 
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
 # local env files
 .env*.local
 .env
+.env.development
+.env.production
+.env.test
 
 # vercel
 .vercel
@@ -37,14 +46,43 @@ pnpm-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# turbo
+.turbo
+
+# cache
+.cache
+.parcel-cache
+.eslintcache
+.stylelintcache
+
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.project
+.classpath
+.settings/
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
+
+# temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+
+# uploads (if any local uploads directory exists)
+uploads/
+temp/
 

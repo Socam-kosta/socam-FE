@@ -1,11 +1,11 @@
-// ========== 공지사항 작성 페이지 ==========
+// ========== 공지사항 수정 페이지 ==========
 // 역할: 관리자만
-// 기능: 새 공지사항 작성
+// 기능: 기존 공지사항 수정
 
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
 import { Card, CardContent } from '@/components/ui/card'
@@ -15,15 +15,45 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Save, X } from 'lucide-react'
 import Link from 'next/link'
-import { createNotice } from '@/lib/api/admin'
+import { getNoticeDetail, updateNotice } from '@/lib/api/admin'
 
-export default function NewNoticePage() {
+export default function EditNoticePage() {
   const router = useRouter()
+  const params = useParams()
+  const noticeId = Number(params.id)
+
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isFetching, setIsFetching] = useState(true)
 
-  // ========== 공지사항 작성 처리 ==========
+  // ========== 공지사항 상세 정보 로드 ==========
+  useEffect(() => {
+    const fetchNoticeDetail = async () => {
+      if (!noticeId || isNaN(noticeId)) {
+        alert('유효하지 않은 공지사항 ID입니다.')
+        router.push('/admin/notices')
+        return
+      }
+
+      try {
+        setIsFetching(true)
+        const data = await getNoticeDetail(noticeId)
+        setTitle(data.title)
+        setContent(data.contents)
+      } catch (error) {
+        console.error('공지사항 상세 조회 실패:', error)
+        alert(error instanceof Error ? error.message : '공지사항 정보를 불러오는데 실패했습니다.')
+        router.push('/admin/notices')
+      } finally {
+        setIsFetching(false)
+      }
+    }
+
+    fetchNoticeDetail()
+  }, [noticeId, router])
+
+  // ========== 공지사항 수정 처리 ==========
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -34,25 +64,36 @@ export default function NewNoticePage() {
 
     try {
       setIsLoading(true)
-      // 어드민 이메일은 sessionStorage에서 가져옴
-      const adminEmail = sessionStorage.getItem('userEmail') || ''
-      if (!adminEmail) {
-        alert('관리자 이메일을 찾을 수 없습니다. 다시 로그인해주세요.')
-        return
-      }
-      await createNotice({
-        adminEmail,
+      await updateNotice(noticeId, {
         title,
         contents: content,
       })
-      alert('공지사항이 작성되었습니다')
+      alert('공지사항이 수정되었습니다')
       router.push('/admin/notices')
     } catch (error) {
-      console.error('공지사항 작성 실패:', error)
-      alert(error instanceof Error ? error.message : '공지사항 작성에 실패했습니다.')
+      console.error('공지사항 수정 실패:', error)
+      alert(error instanceof Error ? error.message : '공지사항 수정에 실패했습니다.')
     } finally {
       setIsLoading(false)
     }
+  }
+
+  if (isFetching) {
+    return (
+      <>
+        <Header />
+        <main className="bg-background min-h-screen py-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Card>
+              <CardContent className="p-12 text-center">
+                <p className="text-muted-foreground">로딩 중...</p>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+        <Footer />
+      </>
+    )
   }
 
   return (
@@ -63,11 +104,11 @@ export default function NewNoticePage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* ========== 페이지 헤더 ========== */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">새 공지사항 작성</h1>
-            <p className="text-muted-foreground">플랫폼 공지사항을 작성하세요</p>
+            <h1 className="text-3xl font-bold mb-2">공지사항 수정</h1>
+            <p className="text-muted-foreground">공지사항 내용을 수정하세요</p>
           </div>
 
-          {/* ========== 작성 폼 ========== */}
+          {/* ========== 수정 폼 ========== */}
           <form onSubmit={handleSubmit}>
             <Card>
               <CardContent className="p-6 space-y-6">
@@ -103,25 +144,11 @@ export default function NewNoticePage() {
                   </p>
                 </div>
 
-                {/* ========== 이미지 업로드 (선택) ========== */}
-                <div className="space-y-2">
-                  <Label htmlFor="images">이미지 첨부 (선택)</Label>
-                  <Input
-                    id="images"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    최대 5개, 각 10MB 이하
-                  </p>
-                </div>
-
                 {/* ========== 액션 버튼 ========== */}
                 <div className="flex gap-3 pt-4">
                   <Button type="submit" className="flex-1" disabled={isLoading}>
                     <Save className="h-4 w-4 mr-2" />
-                    {isLoading ? '작성 중...' : '작성하기'}
+                    {isLoading ? '수정 중...' : '수정하기'}
                   </Button>
                   <Link href="/admin/notices" className="flex-1">
                     <Button type="button" variant="outline" className="w-full" disabled={isLoading}>
@@ -140,3 +167,4 @@ export default function NewNoticePage() {
     </>
   )
 }
+

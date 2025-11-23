@@ -4,13 +4,13 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/header'
 import Footer from '@/components/footer'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { Star, CheckCircle, XCircle, Trash2 } from 'lucide-react'
+import { Star, CheckCircle, XCircle } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -19,46 +19,97 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-
-// ========== 임시 리뷰 데이터 ==========
-const pendingReviews = [
-  {
-    id: 1,
-    lectureName: 'React 완벽 마스터',
-    author: '학생1',
-    rating: 5,
-    content: '정말 좋은 강의입니다. 실무에 바로 적용할 수 있는 내용들이 많았습니다.',
-    date: '2025-02-15',
-  },
-  {
-    id: 2,
-    lectureName: 'Python 데이터 분석',
-    author: '학생2',
-    rating: 4,
-    content: '강사님의 설명이 명확하고 이해하기 쉬웠습니다.',
-    date: '2025-02-18',
-  },
-]
+import {
+  getReviewList,
+  getReviewsByStatus,
+  updateReviewStatus,
+  type ReviewListItem,
+} from '@/lib/api/admin'
 
 export default function AdminReviewsPage() {
-  const [activeTab, setActiveTab] = useState<'pending' | 'approved'>('pending')
+  const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'rejected'>('pending')
+  const [reviews, setReviews] = useState<ReviewListItem[]>([])
   const [rejectReason, setRejectReason] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+  const [isProcessing, setIsProcessing] = useState(false)
 
-  const handleApprove = (reviewId: number) => {
-    console.log('[v0] Review approved:', reviewId)
-    alert('리뷰가 승인되었습니다')
+  // ========== 리뷰 목록 로드 ==========
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setIsLoading(true)
+        let data: ReviewListItem[]
+        if (activeTab === 'pending') {
+          data = await getReviewList()
+        } else {
+          const status = activeTab === 'approved' ? 'APPROVED' : 'REJECTED'
+          data = await getReviewsByStatus(status)
+        }
+        setReviews(data)
+      } catch (error) {
+        console.error('리뷰 목록 로드 실패:', error)
+        alert('리뷰 목록을 불러오는데 실패했습니다.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchReviews()
+  }, [activeTab])
+
+  // ========== 승인 처리 ==========
+  const handleApprove = async (reviewId: number) => {
+    if (!confirm('이 리뷰를 승인하시겠습니까?')) return
+
+    try {
+      setIsProcessing(true)
+      await updateReviewStatus(reviewId, 'APPROVED')
+      alert('리뷰가 승인되었습니다')
+      // 목록 새로고침
+      let data: ReviewListItem[]
+      if (activeTab === 'pending') {
+        data = await getReviewList()
+      } else {
+        const status = activeTab === 'approved' ? 'APPROVED' : 'REJECTED'
+        data = await getReviewsByStatus(status)
+      }
+      setReviews(data)
+    } catch (error) {
+      console.error('리뷰 승인 실패:', error)
+      alert(error instanceof Error ? error.message : '리뷰 승인에 실패했습니다.')
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
-  const handleReject = (reviewId: number, reason: string) => {
-    console.log('[v0] Review rejected:', reviewId, reason)
-    alert('리뷰 승인이 거절되었습니다')
-    setRejectReason('')
-  }
+  // ========== 거절 처리 ==========
+  const handleReject = async (reviewId: number, reason: string) => {
+    if (!reason.trim()) {
+      alert('거절 사유를 입력해주세요')
+      return
+    }
 
-  const handleDelete = (reviewId: number) => {
-    if (confirm('리뷰를 삭제하시겠습니까?')) {
-      console.log('[v0] Review deleted:', reviewId)
-      alert('리뷰가 삭제되었습니다')
+    if (!confirm('이 리뷰를 거절하시겠습니까?')) return
+
+    try {
+      setIsProcessing(true)
+      await updateReviewStatus(reviewId, 'REJECTED', reason)
+      alert('리뷰 승인이 거절되었습니다')
+      setRejectReason('')
+      // 목록 새로고침
+      let data: ReviewListItem[]
+      if (activeTab === 'pending') {
+        data = await getReviewList()
+      } else {
+        const status = activeTab === 'approved' ? 'APPROVED' : 'REJECTED'
+        data = await getReviewsByStatus(status)
+      }
+      setReviews(data)
+    } catch (error) {
+      console.error('리뷰 거절 실패:', error)
+      alert(error instanceof Error ? error.message : '리뷰 거절에 실패했습니다.')
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -97,93 +148,123 @@ export default function AdminReviewsPage() {
               >
                 승인됨
               </button>
+              <button
+                className={`pb-4 font-medium transition-colors ${
+                  activeTab === 'rejected'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                onClick={() => setActiveTab('rejected')}
+              >
+                거절됨
+              </button>
             </div>
           </div>
 
-          {/* ========== 미승인 리뷰 목록 ========== */}
-          {activeTab === 'pending' && (
-            <div className="space-y-4">
-              {pendingReviews.map((review) => (
-                <Card key={review.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <h3 className="font-semibold mb-1">{review.lectureName}</h3>
-                        <p className="text-sm text-muted-foreground mb-2">작성자: {review.author}</p>
-                        <div className="flex items-center gap-1 mb-3">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`h-4 w-4 ${
-                                star <= review.rating
-                                  ? 'fill-yellow-400 text-yellow-400'
-                                  : 'text-gray-300'
-                              }`}
-                            />
-                          ))}
-                          <span className="ml-2 text-sm text-muted-foreground">{review.date}</span>
-                        </div>
-                        <p className="text-muted-foreground leading-relaxed">{review.content}</p>
-                      </div>
-                      <div className="flex gap-2 ml-4">
-                        <Button
-                          size="sm"
-                          onClick={() => handleApprove(review.id)}
-                        >
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          승인
-                        </Button>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="destructive" size="sm">
-                              <XCircle className="h-4 w-4 mr-1" />
-                              거절
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>리뷰 승인 거절</DialogTitle>
-                              <DialogDescription>거절 사유를 입력하세요</DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4">
-                              <Textarea
-                                placeholder="거절 사유를 입력하세요"
-                                value={rejectReason}
-                                onChange={(e) => setRejectReason(e.target.value)}
-                                rows={4}
-                              />
-                              <Button
-                                variant="destructive"
-                                className="w-full"
-                                onClick={() => handleReject(review.id, rejectReason)}
-                              >
-                                거절 확인
-                              </Button>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(review.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {/* ========== 승인됨 탭 ========== */}
-          {activeTab === 'approved' && (
+          {/* ========== 리뷰 목록 ========== */}
+          {isLoading ? (
             <Card>
               <CardContent className="p-12 text-center">
-                <p className="text-muted-foreground">승인된 리뷰가 없습니다</p>
+                <p className="text-muted-foreground">로딩 중...</p>
               </CardContent>
             </Card>
+          ) : (
+            <div className="space-y-4">
+              {reviews.length === 0 ? (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <p className="text-muted-foreground">
+                      {activeTab === 'pending'
+                        ? '미승인 리뷰가 없습니다'
+                        : activeTab === 'approved'
+                        ? '승인된 리뷰가 없습니다'
+                        : '거절된 리뷰가 없습니다'}
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                reviews.map((review) => (
+                  <Card key={review.reviewId}>
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="font-semibold mb-1">
+                            {review.lectureName || `강의 ID: ${review.lectureId}`}
+                          </h3>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            작성자: {review.email}
+                          </p>
+                          <div className="flex items-center gap-1 mb-3">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`h-4 w-4 ${
+                                  star <= review.starRating
+                                    ? 'fill-yellow-400 text-yellow-400'
+                                    : 'text-gray-300'
+                                }`}
+                              />
+                            ))}
+                            <span className="ml-2 text-sm text-muted-foreground">
+                              {new Date(review.createdAt).toLocaleDateString('ko-KR')}
+                            </span>
+                          </div>
+                          <p className="text-muted-foreground leading-relaxed">
+                            {review.contents}
+                          </p>
+                        </div>
+                        {activeTab === 'pending' && (
+                          <div className="flex gap-2 ml-4">
+                            <Button
+                              size="sm"
+                              onClick={() => handleApprove(review.reviewId)}
+                              disabled={isProcessing}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              승인
+                            </Button>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  disabled={isProcessing}
+                                >
+                                  <XCircle className="h-4 w-4 mr-1" />
+                                  거절
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>리뷰 승인 거절</DialogTitle>
+                                  <DialogDescription>거절 사유를 입력하세요</DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                  <Textarea
+                                    placeholder="거절 사유를 입력하세요"
+                                    value={rejectReason}
+                                    onChange={(e) => setRejectReason(e.target.value)}
+                                    rows={4}
+                                  />
+                                  <Button
+                                    variant="destructive"
+                                    className="w-full"
+                                    onClick={() => handleReject(review.reviewId, rejectReason)}
+                                    disabled={isProcessing}
+                                  >
+                                    거절 확인
+                                  </Button>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
           )}
         </div>
       </main>
