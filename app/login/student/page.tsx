@@ -130,7 +130,7 @@ export default function StudentLoginPage() {
                     아이디 찾기
                   </Link>
                   <span>|</span>
-                  <Link href="/reset-pw/request" className="hover:text-primary">
+                  <Link href="/user-reset-pw/request" className="hover:text-primary">
                     비밀번호 찾기
                   </Link>
                 </div>
