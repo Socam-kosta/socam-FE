@@ -130,8 +130,8 @@ export default function OrgLoginPage() {
                     아이디 찾기
                   </Link>
                   <span>|</span>
-                  <Link href="#" className="hover:text-primary">
-                    비밀번호 찾기
+                  <Link href="/org-reset-pw/request" className="hover:text-primary">
+                    비밀번호 찾기-
                   </Link>
                 </div>
 
