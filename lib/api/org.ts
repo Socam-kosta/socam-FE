@@ -201,6 +201,23 @@ export async function updateOrgInfo(
 
   return response.json();
 }
+/**
+ * 운영기관 탈퇴 기능
+ */
+export async function deleteOrg(email: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/org/delete/${email}`, {
+    method: "DELETE",
+    headers: {
+      ...getAuthHeaders(),
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.message || "기관 탈퇴 실패");
+  }
+}
 
 // ========== 강의 상세 DTO ==========
 export interface LectureDetailDto {
