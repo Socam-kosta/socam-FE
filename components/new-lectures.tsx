@@ -15,6 +15,7 @@ import {
 } from "@/lib/api/lecture";
 import { getLectureAverageRating } from "@/lib/api/review";
 import { addWishlist, removeWishlist, getWishlist } from "@/lib/api/wishlist";
+import { getValidToken } from "@/lib/auth-utils";
 
 // ========== 강의 데이터 타입 (평점 및 찜 상태 포함) ==========
 interface LectureWithRating extends LectureResponseDto {
@@ -47,7 +48,7 @@ export default function NewLectures() {
         const userEmail = getCurrentUserEmail();
         
         // 토큰이 없으면 찜 상태를 확인하지 않음
-        const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+        const token = typeof window !== "undefined" ? getValidToken() : null;
         if (!token) {
           // 토큰이 없으면 모든 강의의 찜 상태를 false로 설정
           const sortedLectures = [...allLectures]
@@ -129,7 +130,7 @@ export default function NewLectures() {
       return;
     }
 
-    const token = localStorage.getItem("accessToken");
+    const token = getValidToken();
     if (!token) {
       alert("로그인이 필요합니다. 다시 로그인해주세요.");
       router.push("/login/student");

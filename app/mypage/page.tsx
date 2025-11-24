@@ -30,6 +30,7 @@ import {
   deleteUser,
   type UserInfo,
 } from "@/lib/api/user";
+import { getValidToken } from "@/lib/auth-utils";
 import { getMyReviews, type ReviewResponseDto } from "@/lib/api/review";
 import { getWishlist, type WishlistItem } from "@/lib/api/wishlist";
 import { getLectureDetail } from "@/lib/api/lecture";
@@ -177,7 +178,7 @@ export default function MyPage() {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${getValidToken() || ""}`,
           },
         }
       );

@@ -17,6 +17,13 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import {
+  getValidToken,
+  getValidAdminToken,
+  clearAuthData,
+  clearAdminAuthData,
+} from "@/lib/auth-utils";
+import SessionTimer from "@/components/session-timer";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -67,24 +74,38 @@ export default function Header() {
 
       if (isAdminPage) {
         // 어드민 페이지: sessionStorage에서 확인 (새 창에서 공유 안 됨)
-        const adminUserType = sessionStorage
-          .getItem("adminUserType")
-          ?.toLowerCase();
-        if (adminUserType === "admin" || adminUserType === "ADMIN") {
-          setUserRole("admin");
+        // 토큰 만료 검증
+        const adminToken = getValidAdminToken();
+        if (adminToken) {
+          const adminUserType = sessionStorage
+            .getItem("adminUserType")
+            ?.toLowerCase();
+          if (adminUserType === "admin" || adminUserType === "ADMIN") {
+            setUserRole("admin");
+          } else {
+            setUserRole("guest");
+          }
         } else {
+          // 토큰이 없거나 만료된 경우
           setUserRole("guest");
         }
       } else {
         // 일반 페이지: localStorage에서 확인 (새 창에서 공유됨)
-        const userType = localStorage.getItem("userType")?.toLowerCase();
-        // DTO 기준: Role = "USER" | "ADMIN" | "ORG" (대문자)
-        // localStorage에는 소문자로 저장하지만, 대소문자 모두 처리
-        if (userType === "org" || userType === "ORG") {
-          setUserRole("org");
-        } else if (userType === "user" || userType === "USER") {
-          setUserRole("user");
+        // 토큰 만료 검증
+        const token = getValidToken();
+        if (token) {
+          const userType = localStorage.getItem("userType")?.toLowerCase();
+          // DTO 기준: Role = "USER" | "ADMIN" | "ORG" (대문자)
+          // localStorage에는 소문자로 저장하지만, 대소문자 모두 처리
+          if (userType === "org" || userType === "ORG") {
+            setUserRole("org");
+          } else if (userType === "user" || userType === "USER") {
+            setUserRole("user");
+          } else {
+            setUserRole("guest");
+          }
         } else {
+          // 토큰이 없거나 만료된 경우
           setUserRole("guest");
         }
       }
@@ -99,20 +120,13 @@ export default function Header() {
 
       if (isAdminPage) {
         // 어드민 로그아웃: sessionStorage 정리
-        sessionStorage.removeItem("adminAccessToken");
-        sessionStorage.removeItem("adminRefreshToken");
-        sessionStorage.removeItem("adminEmail");
-        sessionStorage.removeItem("adminUserType");
+        clearAdminAuthData();
         setUserRole("guest");
         // 관리자 페이지에서 로그아웃하면 로그인 페이지로 이동
         router.push("/admin/login");
       } else {
         // 일반 사용자 로그아웃: localStorage 정리
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("userEmail");
-        localStorage.removeItem("userType");
-        localStorage.removeItem("rememberMe");
+        clearAuthData();
         setUserRole("guest");
         // 페이지 새로고침하여 모든 컴포넌트 상태 초기화
         window.location.href = "/";
@@ -144,9 +158,9 @@ export default function Header() {
     <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
       {/* ========== 메인 헤더 바 ========== */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex items-center h-16 gap-6">
           {/* ========== 좌측: 로고 + 네비게이션 메뉴 ========== */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-8 flex-shrink-0">
             {/* 로고 */}
             <Link href="/" className="flex items-center gap-2">
               <div className="w-8 h-8 rounded bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
@@ -180,35 +194,35 @@ export default function Header() {
             </nav>
           </div>
 
-          {/* ========== 검색 및 우측 액션 버튼 ========== */}
-          <div className="hidden md:flex items-center gap-4">
-            {/* ========== 검색 버튼 ========== */}
-            <div className="flex items-center gap-2">
-              <Input
-                type="text"
-                placeholder="비전공자 시작 강의"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onClick={openSearchModal}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    openSearchModal();
-                  }
-                }}
-                className="w-64 cursor-pointer"
-                readOnly
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={openSearchModal}
-                className="hover:bg-accent"
-                title="검색"
-              >
-                <Search className="w-5 h-5" />
-              </Button>
-            </div>
+          {/* ========== 검색 바 (공지사항 옆부터 돋보기까지) ========== */}
+          <div className="hidden md:flex items-center flex-1 px-4 relative">
+            <Input
+              type="text"
+              placeholder="비전공자 시작 강의"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onClick={openSearchModal}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  openSearchModal();
+                }
+              }}
+              className="flex-1 cursor-pointer pr-10"
+              readOnly
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={openSearchModal}
+              className="absolute right-4 hover:bg-transparent cursor-pointer"
+              title="검색"
+            >
+              <Search className="w-5 h-5 text-muted-foreground" />
+            </Button>
+          </div>
 
+          {/* ========== 우측 액션 버튼 ========== */}
+          <div className="hidden md:flex items-center gap-4 flex-shrink-0">
             {/* ========== 역할별 사용자 메뉴 ========== */}
             {/* 비회원 */}
             {userRole === "guest" && (
@@ -227,6 +241,13 @@ export default function Header() {
             {/* 학생 */}
             {userRole === "user" && (
               <div className="flex items-center gap-2">
+                <SessionTimer
+                  onSessionExpired={() => {
+                    clearAuthData();
+                    setUserRole("guest");
+                    window.location.href = "/";
+                  }}
+                />
                 <Link href="/mypage">
                   <Button variant="ghost" className="text-sm">
                     마이페이지
@@ -245,6 +266,13 @@ export default function Header() {
             {/* 기관 */}
             {userRole === "org" && (
               <div className="flex items-center gap-2">
+                <SessionTimer
+                  onSessionExpired={() => {
+                    clearAuthData();
+                    setUserRole("guest");
+                    window.location.href = "/";
+                  }}
+                />
                 <Link href="/org">
                   <Button variant="ghost" className="text-sm">
                     기관관리

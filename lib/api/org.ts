@@ -4,8 +4,10 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
 
 // ========== 공통 헤더 ==========
+import { getValidToken } from "@/lib/auth-utils";
+
 function getAuthHeaders() {
-  const token = localStorage.getItem("accessToken");
+  const token = getValidToken();
 
   if (!token) {
     throw new Error("로그인이 필요합니다. 기관으로 로그인해주세요.");

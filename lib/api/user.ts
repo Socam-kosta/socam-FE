@@ -4,12 +4,14 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
 
 // ========== 인증 헤더 가져오기 ==========
+import { getValidToken } from "@/lib/auth-utils";
+
 function getAuthHeaders(): HeadersInit {
   if (typeof window === "undefined") {
     throw new Error("브라우저 환경에서만 사용 가능합니다.");
   }
 
-  const token = localStorage.getItem("accessToken");
+  const token = getValidToken();
   if (!token) {
     throw new Error("로그인이 필요합니다.");
   }

@@ -6,12 +6,14 @@ const API_BASE_URL =
 /**
  * 인증 헤더 가져오기
  */
+import { getValidToken } from "@/lib/auth-utils";
+
 function getAuthHeaders(): HeadersInit {
   if (typeof window === "undefined") {
     throw new Error("브라우저 환경에서만 사용 가능합니다.");
   }
 
-  const token = localStorage.getItem("accessToken");
+  const token = getValidToken();
   if (!token) {
     throw new Error("로그인이 필요합니다.");
   }
@@ -99,7 +101,7 @@ export async function getWishlist(email: string): Promise<WishlistItem[]> {
     const headers = getAuthHeaders();
 
     // 디버깅: 토큰 확인
-    const token = localStorage.getItem("accessToken");
+    const token = getValidToken();
     if (process.env.NODE_ENV === "development") {
       console.log("[Wishlist] 토큰 존재:", token ? "있음" : "없음");
       const authHeader = Array.isArray(headers)
