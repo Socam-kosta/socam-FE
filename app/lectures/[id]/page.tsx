@@ -40,6 +40,7 @@ import {
   type ReviewResponseDto,
 } from "@/lib/api/review";
 import { addWishlist, removeWishlist, getWishlist } from "@/lib/api/wishlist";
+import { getValidToken } from "@/lib/auth-utils";
 
 export default function LectureDetailPage() {
   const params = useParams();
@@ -103,7 +104,7 @@ export default function LectureDetailPage() {
         const userEmail = getCurrentUserEmail();
         const token =
           typeof window !== "undefined"
-            ? localStorage.getItem("accessToken")
+            ? getValidToken()
             : null;
 
         console.log("[강의 상세] 찜 상태 확인 시작:", {
@@ -249,7 +250,7 @@ export default function LectureDetailPage() {
     }
 
     // 토큰 확인
-    const token = localStorage.getItem("accessToken");
+    const token = getValidToken();
     if (!token) {
       alert("로그인이 필요합니다. 다시 로그인해주세요.");
       router.push("/login/student");

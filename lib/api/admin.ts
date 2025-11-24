@@ -13,9 +13,11 @@ if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
 }
 
 // ========== 공통 헤더 ==========
+import { getValidAdminToken } from "@/lib/auth-utils";
+
 function getAuthHeaders() {
-  // 어드민 인증 토큰은 sessionStorage에서 가져옴
-  const token = sessionStorage.getItem("adminAccessToken");
+  // 어드민 인증 토큰은 sessionStorage에서 가져옴 (만료 검증 포함)
+  const token = getValidAdminToken();
 
   // 디버깅: 토큰 확인
   if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {

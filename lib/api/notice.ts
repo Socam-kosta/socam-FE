@@ -18,20 +18,36 @@ export interface NoticeResponseDto {
 /**
  * 공개된 공지사항 목록 조회 (일반 사용자용)
  * status가 VISIBLE인 공지사항만 반환
- *
- * Note: 현재 백엔드 API는 관리자 권한이 필요하지만,
- * 일반 사용자도 공지사항을 볼 수 있어야 하므로
- * 백엔드에 공개 API가 추가되면 그쪽을 사용하도록 수정 필요
  */
 export async function getPublicNotices(): Promise<NoticeResponseDto[]> {
   try {
-    // TODO: 백엔드에 공개 공지사항 API가 있다면 그것을 사용
-    // 현재는 관리자 API를 사용하되, 프론트엔드에서 VISIBLE만 필터링
-    // 또는 백엔드에 /api/notices 같은 공개 엔드포인트 추가 필요
+    const response = await fetch(`${API_BASE_URL}/notices`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-    // 임시로 빈 배열 반환 (백엔드에 공개 API가 없을 경우)
-    // 실제로는 백엔드에 공개 공지사항 조회 API를 추가해야 함
-    return [];
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.error ||
+          errorData.message ||
+          `공지사항 목록 조회 실패: ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+    return data.map((notice: any) => ({
+      noticeId: notice.noticeId,
+      adminEmail: notice.adminEmail,
+      title: notice.title,
+      contents: notice.contents,
+      regDate: notice.regDate,
+      status: notice.status,
+      viewCount: notice.viewCount || 0,
+      editDate: notice.editDate,
+    }));
   } catch (error) {
     console.error("공지사항 조회 실패:", error);
     return [];
@@ -40,15 +56,68 @@ export async function getPublicNotices(): Promise<NoticeResponseDto[]> {
 
 /**
  * 공지사항 상세 조회 (일반 사용자용)
+ * 조회수 증가 없음
  */
 export async function getPublicNoticeDetail(
   noticeId: number
 ): Promise<NoticeResponseDto | null> {
   try {
-    // TODO: 백엔드에 공개 공지사항 상세 조회 API 추가 필요
-    return null;
+    const response = await fetch(`${API_BASE_URL}/notices/${noticeId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.error ||
+          errorData.message ||
+          `공지사항 상세 조회 실패: ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+    return {
+      noticeId: data.noticeId,
+      adminEmail: data.adminEmail,
+      title: data.title,
+      contents: data.contents,
+      regDate: data.regDate,
+      status: data.status,
+      viewCount: data.viewCount || 0,
+      editDate: data.editDate,
+    };
   } catch (error) {
     console.error("공지사항 상세 조회 실패:", error);
     return null;
+  }
+}
+
+/**
+ * 공지사항 조회수 증가 (별도 호출)
+ */
+export async function incrementNoticeViewCount(
+  noticeId: number
+): Promise<void> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/notices/${noticeId}/view`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      // 조회수 증가 실패는 조용히 처리 (에러 로그만)
+      console.warn(`공지사항 조회수 증가 실패: ${response.status}`);
+    }
+  } catch (error) {
+    // 조회수 증가 실패는 조용히 처리
+    console.warn("공지사항 조회수 증가 실패:", error);
   }
 }

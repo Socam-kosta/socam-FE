@@ -28,6 +28,7 @@ import {
   type LectureResponseDto,
   type LectureDetailDto,
 } from "@/lib/api/lecture";
+import { getValidToken } from "@/lib/auth-utils";
 import { getLectureAverageRating } from "@/lib/api/review";
 import { addWishlist, removeWishlist, getWishlist } from "@/lib/api/wishlist";
 
@@ -81,10 +82,13 @@ export default function LecturesPage() {
     target: [] as string[],
   });
 
-  // ========== URL 쿼리 파라미터에서 카테고리 및 검색어 읽기 ==========
+  const [selectedOrg, setSelectedOrg] = useState<string | null>(null);
+
+  // ========== URL 쿼리 파라미터에서 카테고리, 검색어, 기관 읽기 ==========
   useEffect(() => {
     const categoryParam = searchParams.get("category");
     const searchParam = searchParams.get("search");
+    const orgParam = searchParams.get("org");
     
     // 검색어 설정
     // Next.js의 useSearchParams는 이미 자동으로 디코딩된 값을 반환합니다
@@ -93,6 +97,14 @@ export default function LecturesPage() {
       console.log("[검색 페이지] URL에서 읽은 검색어:", searchParam);
     } else {
       setSearchQuery("");
+    }
+    
+    // 기관 필터 설정
+    if (orgParam) {
+      setSelectedOrg(decodeURIComponent(orgParam));
+      console.log("[검색 페이지] URL에서 읽은 기관:", decodeURIComponent(orgParam));
+    } else {
+      setSelectedOrg(null);
     }
     
     // 카테고리 필터 설정
@@ -131,7 +143,7 @@ export default function LecturesPage() {
         setIsLoading(true);
         const lectures = await getAllApprovedLectures();
         const userEmail = getCurrentUserEmail();
-        const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+        const token = typeof window !== "undefined" ? getValidToken() : null;
 
         // 찜 목록을 한 번만 가져오기 (로그인한 사용자인 경우)
         let wishlistIds: Set<number> = new Set();
@@ -288,6 +300,13 @@ export default function LecturesPage() {
       );
     }
 
+    // 기관 필터 적용
+    if (selectedOrg) {
+      filtered = filtered.filter(
+        (lecture) => lecture.organization === selectedOrg
+      );
+    }
+
     // 정렬
     switch (sortBy) {
       case "latest":
@@ -311,7 +330,7 @@ export default function LecturesPage() {
     }
 
     return filtered;
-  }, [allLectures, searchQuery, filters, sortBy]);
+  }, [allLectures, searchQuery, filters, sortBy, selectedOrg]);
 
   return (
     <>
@@ -321,7 +340,29 @@ export default function LecturesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* ========== 페이지 헤더 ========== */}
           <div className="mb-8">
-            {searchQuery ? (
+            {selectedOrg ? (
+              <>
+                <div className="flex items-center justify-between mb-2">
+                  <h1 className="text-3xl font-bold">
+                    {selectedOrg} 강의
+                  </h1>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      router.push("/lectures");
+                    }}
+                  >
+                    필터 초기화
+                  </Button>
+                </div>
+                <p className="text-muted-foreground">
+                  {isLoading
+                    ? "로딩 중..."
+                    : `${filteredLectures.length}개의 강의를 찾았습니다`}
+                </p>
+              </>
+            ) : searchQuery ? (
               <>
                 <h1 className="text-3xl font-bold mb-2">
                   검색 결과: &quot;{searchQuery}&quot;
