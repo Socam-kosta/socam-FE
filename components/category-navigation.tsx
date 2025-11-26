@@ -42,7 +42,7 @@ export default function CategoryNavigation() {
                          transition-all duration-200
                          group"
               >
-                <Icon className="w-4 h-4 group-hover:text-primary transition-colors" />
+                <Icon className="w-4 h-4 text-current transition-colors" />
                 <span>{category.name}</span>
               </Link>
             )
