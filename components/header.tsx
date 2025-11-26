@@ -228,7 +228,7 @@ export default function Header() {
             {userRole === "guest" && (
               <>
                 <Link href="/login">
-                  <Button variant="outline" className="text-sm">
+                  <Button variant="outline" className="text-sm hover:text-primary">
                     로그인
                   </Button>
                 </Link>
