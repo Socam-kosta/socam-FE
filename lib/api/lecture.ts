@@ -5,6 +5,7 @@ const API_BASE_URL =
 
 // ========== 강의 응답 DTO ==========
 export interface LectureResponseDto {
+    description?: string;
   id: number;
   title: string;
   instructor?: string;
