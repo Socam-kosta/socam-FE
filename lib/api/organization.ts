@@ -1,8 +1,10 @@
 // ========== 교육기관 공개 API ==========
 // 일반 사용자가 볼 수 있는 기관 정보
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = baseUrl 
+  ? (baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`)
+  : "http://localhost:8080/api";
 
 export interface OrganizationInfo {
   email: string;

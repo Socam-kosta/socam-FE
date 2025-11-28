@@ -1,5 +1,7 @@
-const API_BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = baseUrl 
+  ? (baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`)
+  : "http://localhost:8080/api";
 
 // 비밀번호 재설정 메일 요청
 export async function requestOrgPasswordReset(email: string): Promise<void> {
