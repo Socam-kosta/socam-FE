@@ -1,7 +1,9 @@
 // ========== 관리자 API ==========
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = baseUrl 
+  ? (baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`)
+  : "http://localhost:8080/api";
 
 // 디버깅: 환경 변수 로드 확인 (개발 환경에서만)
 if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {

@@ -1,7 +1,9 @@
 // ========== 기관 로그인 API ==========
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = baseUrl 
+  ? (baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`)
+  : "http://localhost:8080/api";
 
 export interface OrgLoginRequest {
   email: string;
