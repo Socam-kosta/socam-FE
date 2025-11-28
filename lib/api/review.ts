@@ -162,3 +162,28 @@ export async function addReview(
 
   return response.text();
 }
+
+/**
+ * 리뷰 삭제
+ */
+export async function deleteReview(
+  reviewId: number,
+  email: string
+): Promise<void> {
+  const response = await fetch(
+    `${API_BASE_URL}/review/delete/${reviewId}?email=${encodeURIComponent(email)}`,
+    {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.error ||
+        errorData.message ||
+        `리뷰 삭제 실패: ${response.status}`
+    );
+  }
+}
