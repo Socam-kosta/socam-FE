@@ -66,7 +66,7 @@ export async function updateUserInfo(
   email: string,
   data: UpdateUserRequest
 ): Promise<UserInfo> {
-  const response = await fetch(`${API_BASE_URL}/users/${email}`, {
+  const response = await fetch(`${API_BASE_URL}/users/me`, {
     method: "PUT",
     headers: getAuthHeaders(),
     body: JSON.stringify(data),
@@ -88,7 +88,7 @@ export async function updateUserInfo(
  * 회원 탈퇴
  */
 export async function deleteUser(email: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/users/${email}`, {
+  const response = await fetch(`${API_BASE_URL}/users/me`, {
     method: "DELETE",
     headers: getAuthHeaders(),
   });
