@@ -9,13 +9,20 @@ const API_BASE_URL = baseUrl
 import { getValidToken } from "@/lib/auth-utils";
 
 function getAuthHeaders(): HeadersInit {
+  // 서버(SSR/빌드) 환경에서는 인증 헤더를 붙이지 않고, 기본 헤더만 반환
   if (typeof window === "undefined") {
-    throw new Error("브라우저 환경에서만 사용 가능합니다.");
+    return {
+      "Content-Type": "application/json",
+    };
   }
 
   const token = getValidToken();
+
+  // 토큰이 없으면 일단 Authorization 없이 보냄
   if (!token) {
-    throw new Error("로그인이 필요합니다.");
+    return {
+      "Content-Type": "application/json",
+    };
   }
 
   return {
@@ -68,7 +75,7 @@ export async function updateUserInfo(
   email: string,
   data: UpdateUserRequest
 ): Promise<UserInfo> {
-  const response = await fetch(`${API_BASE_URL}/users/${email}`, {
+  const response = await fetch(`${API_BASE_URL}/users/me`, {
     method: "PUT",
     headers: getAuthHeaders(),
     body: JSON.stringify(data),
@@ -90,7 +97,7 @@ export async function updateUserInfo(
  * 회원 탈퇴
  */
 export async function deleteUser(email: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/users/${email}`, {
+  const response = await fetch(`${API_BASE_URL}/users/me`, {
     method: "DELETE",
     headers: getAuthHeaders(),
   });
