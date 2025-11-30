@@ -39,7 +39,7 @@ export default function LoginPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button className="w-full" variant="outline">
+                  <Button className="w-full hover:text-primary" variant="outline">
                     학생 로그인하기
                   </Button>
                 </CardContent>
@@ -59,7 +59,7 @@ export default function LoginPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button className="w-full" variant="outline">
+                  <Button className="w-full hover:text-primary" variant="outline">
                     기관 로그인하기
                   </Button>
                 </CardContent>
