@@ -1,5 +1,4 @@
 // ========== 사용자 API ==========
-
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
 
@@ -7,13 +6,20 @@ const API_BASE_URL =
 import { getValidToken } from "@/lib/auth-utils";
 
 function getAuthHeaders(): HeadersInit {
+  // 서버(SSR/빌드) 환경에서는 인증 헤더를 붙이지 않고, 기본 헤더만 반환
   if (typeof window === "undefined") {
-    throw new Error("브라우저 환경에서만 사용 가능합니다.");
+    return {
+      "Content-Type": "application/json",
+    };
   }
 
   const token = getValidToken();
+
+  // 토큰이 없으면 일단 Authorization 없이 보냄
   if (!token) {
-    throw new Error("로그인이 필요합니다.");
+    return {
+      "Content-Type": "application/json",
+    };
   }
 
   return {
